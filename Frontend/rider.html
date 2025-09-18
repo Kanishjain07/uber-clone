@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rider Dashboard - Uber Clone</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <i class="fas fa-taxi"></i>
+                <span>UberClone</span>
+            </div>
+            <div class="nav-menu">
+                <a href="index.html" class="nav-link">Home</a>
+                <a href="rider.html" class="nav-link active">Dashboard</a>
+            </div>
+            <div class="nav-auth">
+                <!-- Auth buttons will be injected by auth.js -->
+            </div>
+        </div>
+    </nav>
+
+    <!-- Rider Dashboard -->
+    <div class="dashboard">
+        <div class="container">
+            <div class="dashboard-grid">
+                <!-- Ride Booking -->
+                <div class="dashboard-card">
+                    <h3>Book a Ride</h3>
+                    <form id="bookingForm" class="booking-form">
+                        <div class="form-group">
+                            <label>Pickup Location</label>
+                            <input type="text" id="pickupLocation" placeholder="Enter pickup location" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Dropoff Location</label>
+                            <input type="text" id="dropoffLocation" placeholder="Enter destination" required>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Car Type</label>
+                                <select id="carType" required>
+                                    <option value="standard">Standard</option>
+                                    <option value="premium">Premium</option>
+                                    <option value="suv">SUV</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Payment Method</label>
+                                <select id="paymentMethod" required>
+                                    <option value="card">Credit Card</option>
+                                    <option value="cash">Cash</option>
+                                </select>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Book Now</button>
+                    </form>
+                </div>
+
+                <!-- Current/Active Ride -->
+                <div class="dashboard-card" id="activeRideCard" style="display: none;">
+                    <h3>Active Ride</h3>
+                    <div class="ride-details">
+                        <div class="driver-info">
+                            <h4>Driver Details</h4>
+                            <p><strong>Name:</strong> <span id="driverName"></span></p>
+                            <p><strong>Vehicle:</strong> <span id="vehicleInfo"></span></p>
+                            <p><strong>Rating:</strong> <span id="driverRating"></span></p>
+                        </div>
+                        <div class="ride-status">
+                            <h4>Ride Status</h4>
+                            <p id="rideStatusText">Searching for driver...</p>
+                            <div id="eta"></div>
+                        </div>
+                        <button class="btn btn-outline" id="cancelRideBtn">Cancel Ride</button>
+                    </div>
+                </div>
+
+                <!-- Map -->
+    <div class="dashboard-card full-width">
+        <div id="map-container" style="height: 400px; border-radius: 8px; overflow: hidden;"></div>
+    </div>                <!-- Fare Estimate -->
+                <div class="dashboard-card" id="fareEstimateCard" style="display: none;">
+                    <h3>Fare Estimate</h3>
+                    <div class="fare-details">
+                        <div class="fare-item">
+                            <span>Base Fare</span>
+                            <span id="baseFare">$0.00</span>
+                        </div>
+                        <div class="fare-item">
+                            <span>Distance (est.)</span>
+                            <span id="distanceEst">0 km</span>
+                        </div>
+                        <div class="fare-item">
+                            <span>Time (est.)</span>
+                            <span id="timeEst">0 min</span>
+                        </div>
+                        <div class="fare-item total">
+                            <span>Total Estimate</span>
+                            <span id="totalFare">$0.00</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recent Rides -->
+                <div class="dashboard-card">
+                    <h3>Recent Rides</h3>
+                    <div class="recent-rides" id="recentRidesList">
+                        <!-- Recent rides will be injected here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="js/app.js"></script>
+    <script src="js/api.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/socket_new.js"></script>
+    <script src="js/map.js"></script>
+    <script src="js/ride.js"></script>
+</body>
+</html>
