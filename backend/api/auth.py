@@ -45,6 +45,15 @@ def register():
         existing_user = find_user_by_email(data['email'])
         if existing_user:
             return jsonify({'error': 'User with this email already exists'}), 409
+
+        # Check if phone number already exists
+        db = get_db()
+        if db is None:
+            raise Exception("Database not initialized")
+
+        existing_phone = db.users.find_one({"phone": data['phone']})
+        if existing_phone:
+            return jsonify({'error': 'User with this phone number already exists'}), 409
         
         # Hash password
         hashed_password = generate_password_hash(data['password'])
@@ -77,6 +86,9 @@ def register():
         
         # Create user profile in appropriate collection
         db = get_db()
+        if db is None:
+            raise Exception("Database not initialized")
+
         if data['user_type'] == 'rider':
             rider_data = {
                 'user_id': new_user['_id'],
@@ -108,7 +120,7 @@ def register():
         # Remove password from response
         user_response = {k: v for k, v in new_user.items() if k != 'password'}
         
-        logger.info(f"👤 New user registered: {new_user['email']} ({new_user['user_type']})")
+        logger.info(f"New user registered: {new_user['email']} ({new_user['user_type']})")
         
         return jsonify({
             'message': 'User registered successfully',
@@ -118,7 +130,7 @@ def register():
         }), 201
         
     except Exception as e:
-        logger.error(f"❌ Registration error: {e}")
+        logger.error(f"Registration error: {e}")
         return jsonify({'error': 'Internal server error'}), 500
 
 @auth_bp.route('/login', methods=['POST'])
@@ -150,6 +162,9 @@ def login():
         
         # Update last login
         db = get_db()
+        if db is None:
+            raise Exception("Database not initialized")
+
         db.users.update_one(
             {'_id': user['_id']},
             {'$set': {'last_login': datetime.utcnow()}}
@@ -158,7 +173,7 @@ def login():
         # Remove password from response
         user_response = {k: v for k, v in user.items() if k != 'password'}
         
-        logger.info(f"🔐 User logged in: {user['email']}")
+        logger.info(f"User logged in: {user['email']}")
         
         return jsonify({
             'message': 'Login successful',
@@ -168,7 +183,7 @@ def login():
         }), 200
         
     except Exception as e:
-        logger.error(f"❌ Login error: {e}")
+        logger.error(f"Login error: {e}")
         return jsonify({'error': 'Internal server error'}), 500
 
 @auth_bp.route('/refresh', methods=['POST'])
@@ -184,7 +199,7 @@ def refresh():
         }), 200
         
     except Exception as e:
-        logger.error(f"❌ Token refresh error: {e}")
+        logger.error(f"Token refresh error: {e}")
         return jsonify({'error': 'Internal server error'}), 500
 
 @auth_bp.route('/profile', methods=['GET'])
@@ -206,7 +221,7 @@ def get_profile():
         }), 200
         
     except Exception as e:
-        logger.error(f"❌ Get profile error: {e}")
+        logger.error(f"Get profile error: {e}")
         return jsonify({'error': 'Internal server error'}), 500
 
 @auth_bp.route('/profile', methods=['PUT'])
@@ -230,19 +245,22 @@ def update_profile():
         
         # Update user in database
         db = get_db()
+        if db is None:
+            raise Exception("Database not initialized")
+
         result = db.users.update_one(
             {'_id': current_user_id},
             {'$set': update_data}
         )
         
         if result.modified_count > 0:
-            logger.info(f"👤 Profile updated for user: {current_user_id}")
+            logger.info(f"Profile updated for user: {current_user_id}")
             return jsonify({'message': 'Profile updated successfully'}), 200
         else:
             return jsonify({'message': 'No changes made'}), 200
         
     except Exception as e:
-        logger.error(f"❌ Update profile error: {e}")
+        logger.error(f"Update profile error: {e}")
         return jsonify({'error': 'Internal server error'}), 500
 
 @auth_bp.route('/change-password', methods=['POST'])
@@ -271,20 +289,22 @@ def change_password():
         # Hash new password and update
         new_hashed_password = generate_password_hash(data['new_password'])
         db = get_db()
-        
+        if db is None:
+            raise Exception("Database not initialized")
+
         result = db.users.update_one(
             {'_id': current_user_id},
             {'$set': {'password': new_hashed_password}}
         )
         
         if result.modified_count > 0:
-            logger.info(f"🔐 Password changed for user: {current_user_id}")
+            logger.info(f"Password changed for user: {current_user_id}")
             return jsonify({'message': 'Password changed successfully'}), 200
         else:
             return jsonify({'error': 'Failed to update password'}), 500
         
     except Exception as e:
-        logger.error(f"❌ Change password error: {e}")
+        logger.error(f"Change password error: {e}")
         return jsonify({'error': 'Internal server error'}), 500
 
 @auth_bp.route('/logout', methods=['POST'])
@@ -294,12 +314,12 @@ def logout():
     try:
         # In a real application, you might want to blacklist the token
         # For now, we'll just return a success message
-        logger.info(f"🔐 User logged out: {get_jwt_identity()}")
+        logger.info(f"User logged out: {get_jwt_identity()}")
         
         return jsonify({'message': 'Logout successful'}), 200
         
     except Exception as e:
-        logger.error(f"❌ Logout error: {e}")
+        logger.error(f"Logout error: {e}")
         return jsonify({'error': 'Internal server error'}), 500
 
 @auth_bp.route('/verify-email', methods=['POST'])

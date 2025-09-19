@@ -359,22 +359,25 @@
             <h2>Sign Up</h2>
             <form id="registerForm">
                 <div class="form-group">
-                    <input type="text" placeholder="Full Name" required>
+                    <input type="text" name="first_name" placeholder="First Name" required>
                 </div>
                 <div class="form-group">
-                    <input type="email" placeholder="Email" required>
+                    <input type="text" name="last_name" placeholder="Last Name" required>
                 </div>
                 <div class="form-group">
-                    <input type="tel" placeholder="Phone Number" required>
+                    <input type="email" name="email" placeholder="Email" required>
                 </div>
                 <div class="form-group">
-                    <input type="password" placeholder="Password" required>
+                    <input type="tel" name="phone" placeholder="Phone Number" required>
                 </div>
                 <div class="form-group">
-                    <input type="password" placeholder="Confirm Password" required>
+                    <input type="password" name="password" placeholder="Password" required>
                 </div>
                 <div class="form-group">
-                    <select required>
+                    <input type="password" name="confirmPassword" placeholder="Confirm Password" required>
+                </div>
+                <div class="form-group">
+                    <select name="user_type" required>
                         <option value="">Select User Type</option>
                         <option value="rider">Rider</option>
                         <option value="driver">Driver</option>

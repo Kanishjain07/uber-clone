@@ -11,7 +11,14 @@
       "Bash(findstr:*)",
       "Bash(timeout:*)",
       "Bash(wmic process where processid=16288 get commandline:*)",
-      "Bash(tasklist:*)"
+      "Bash(tasklist:*)",
+      "Bash(wmic process where processid=23124 get commandline:*)",
+      "Bash(npm install)",
+      "Bash(wmic process where processid=2556 get commandline:*)",
+      "Bash(kill:*)",
+      "Bash(PORT=5001 python run.py)",
+      "Bash(PORT=5002 python run.py)",
+      "Bash(cmd //c:*)"
     ],
     "deny": [],
     "ask": []

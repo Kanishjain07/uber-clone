@@ -169,17 +169,18 @@ class AuthManager {
     async handleRegister() {
         const form = document.getElementById('registerForm');
         const formData = new FormData(form);
-        
+
         // Get form values
-        const name = form.querySelector('input[placeholder="Full Name"]').value;
-        const email = form.querySelector('input[type="email"]').value;
-        const phone = form.querySelector('input[placeholder="Phone Number"]').value;
-        const password = form.querySelector('input[placeholder="Password"]').value;
-        const confirmPassword = form.querySelector('input[placeholder="Confirm Password"]').value;
-        const userType = form.querySelector('select').value;
+        const first_name = formData.get('first_name');
+        const last_name = formData.get('last_name');
+        const email = formData.get('email');
+        const phone = formData.get('phone');
+        const password = formData.get('password');
+        const confirmPassword = formData.get('confirmPassword');
+        const user_type = formData.get('user_type');
 
         // Validation
-        if (!name || !email || !phone || !password || !confirmPassword || !userType) {
+        if (!first_name || !last_name || !email || !phone || !password || !confirmPassword || !user_type) {
             this.showNotification('Please fill in all fields', 'error');
             return;
         }
@@ -211,10 +212,12 @@ class AuthManager {
 
             // Simulate API call
             const response = await this.registerUser({
-                name,
+                first_name,
+                last_name,
                 email,
+                phone,
                 password,
-                userType
+                user_type
             });
 
             if (response.success) {
@@ -223,7 +226,7 @@ class AuthManager {
                 this.updateUIAfterAuth(response.user);
 
                 // Redirect drivers to driver dashboard
-                if (userType === 'driver') {
+                if (user_type === 'driver') {
                     setTimeout(() => {
                         window.location.href = 'driver.html';
                     }, 1500);
@@ -248,7 +251,7 @@ class AuthManager {
     async loginUser(email, password) {
         try {
             const api = window.apiHelper || new APIHelper();
-            const response = await api.request('/api/auth/login', {
+            const response = await api.request('/api/v1/auth/login', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -282,16 +285,26 @@ class AuthManager {
             const payload = {
                 email: userData.email,
                 password: userData.password,
-                user_type: userData.userType,
-                first_name: userData.name.split(' ')[0] || userData.name,
-                last_name: userData.name.split(' ').slice(1).join(' ') || '',
-                phone: userData.phone || '',
+                user_type: userData.user_type,
+                first_name: userData.first_name,
+                last_name: userData.last_name,
+                phone: userData.phone,
             };
             // If driver, add vehicle info (can be extended later)
-            if (userData.userType === 'driver') {
-                payload.vehicle_info = userData.vehicle_info || { type: 'sedan' };
+            if (userData.user_type === 'driver') {
+                payload.vehicle_info = userData.vehicle_info || {
+                    make: 'Toyota',
+                    model: 'Camry',
+                    year: '2020',
+                    license_plate: 'ABC123',
+                    vehicle_type: 'sedan'
+                };
             }
-            const response = await api.request('/api/auth/register', {
+
+            // Debug: Log the payload being sent
+            console.log('Registration payload:', payload);
+
+            const response = await api.request('/api/v1/auth/register', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'

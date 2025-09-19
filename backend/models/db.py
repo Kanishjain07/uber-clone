@@ -31,7 +31,7 @@ def init_db(app):
         
         # Test connection
         client.admin.command('ping')
-        logger.info("✅ Successfully connected to MongoDB")
+        logger.info("Successfully connected to MongoDB")
         
         # Get database name (support Atlas URIs without explicit DB path)
         parsed = urlparse(mongo_uri)
@@ -44,13 +44,13 @@ def init_db(app):
         init_collections()
         init_indexes()
         
-        logger.info(f"✅ Database '{db_name}' initialized successfully")
+        logger.info(f"Database '{db_name}' initialized successfully")
         
     except (ConnectionFailure, ServerSelectionTimeoutError) as e:
-        logger.error(f"❌ Failed to connect to MongoDB: {e}")
+        logger.error(f"Failed to connect to MongoDB: {e}")
         raise
     except Exception as e:
-        logger.error(f"❌ Database initialization error: {e}")
+        logger.error(f"Database initialization error: {e}")
         raise
 
 def init_collections():
@@ -68,7 +68,7 @@ def init_collections():
     for collection_name in collections:
         if collection_name not in db.list_collection_names():
             db.create_collection(collection_name)
-            logger.info(f"📁 Created collection: {collection_name}")
+            logger.info(f"Created collection: {collection_name}")
 
 def init_indexes():
     """Initialize database indexes for better performance"""
@@ -112,10 +112,10 @@ def init_indexes():
         db.driver_locations.create_index([("location", "2dsphere")])
         db.driver_locations.create_index([("updated_at", -1)])
         
-        logger.info("✅ Database indexes created successfully")
+        logger.info("Database indexes created successfully")
         
     except Exception as e:
-        logger.error(f"❌ Error creating indexes: {e}")
+        logger.error(f"Error creating indexes: {e}")
 
 def get_db():
     """Get database instance"""
@@ -132,7 +132,7 @@ def close_db():
     global db, client
     if client:
         client.close()
-        logger.info("🔌 Database connection closed")
+        logger.info("Database connection closed")
 
 def health_check():
     """Check database health"""
@@ -148,60 +148,78 @@ def health_check():
 def create_user(user_data):
     """Create a new user"""
     try:
+        database = get_db()
+        if database is None:
+            raise Exception("Database not initialized")
+
         user_data['created_at'] = datetime.utcnow()
         user_data['updated_at'] = datetime.utcnow()
-        
-        result = db.users.insert_one(user_data)
+
+        result = database.users.insert_one(user_data)
         user_data['_id'] = str(result.inserted_id)
-        
-        logger.info(f"👤 User created: {user_data['email']}")
+
+        logger.info(f"User created: {user_data['email']}")
         return user_data
-        
+
     except Exception as e:
-        logger.error(f"❌ Error creating user: {e}")
+        logger.error(f"Error creating user: {e}")
         raise
 
 def find_user_by_email(email):
     """Find user by email"""
     try:
-        return db.users.find_one({"email": email})
+        database = get_db()
+        if database is None:
+            raise Exception("Database not initialized")
+        return database.users.find_one({"email": email})
     except Exception as e:
-        logger.error(f"❌ Error finding user by email: {e}")
+        logger.error(f"Error finding user by email: {e}")
         return None
 
 def find_user_by_id(user_id):
     """Find user by ID"""
     try:
         from bson import ObjectId
-        return db.users.find_one({"_id": ObjectId(user_id)})
+        database = get_db()
+        if database is None:
+            raise Exception("Database not initialized")
+        return database.users.find_one({"_id": ObjectId(user_id)})
     except Exception as e:
-        logger.error(f"❌ Error finding user by ID: {e}")
+        logger.error(f"Error finding user by ID: {e}")
         return None
 
 def update_user(user_id, update_data):
     """Update user data"""
     try:
         from bson import ObjectId
+        database = get_db()
+        if database is None:
+            raise Exception("Database not initialized")
+
         update_data['updated_at'] = datetime.utcnow()
-        
-        result = db.users.update_one(
+
+        result = database.users.update_one(
             {"_id": ObjectId(user_id)},
             {"$set": update_data}
         )
-        
+
         return result.modified_count > 0
-        
+
     except Exception as e:
-        logger.error(f"❌ Error updating user: {e}")
+        logger.error(f"Error updating user: {e}")
         return False
 
 def delete_user(user_id):
     """Delete user"""
     try:
         from bson import ObjectId
-        result = db.users.delete_one({"_id": ObjectId(user_id)})
+        database = get_db()
+        if database is None:
+            raise Exception("Database not initialized")
+
+        result = database.users.delete_one({"_id": ObjectId(user_id)})
         return result.deleted_count > 0
-        
+
     except Exception as e:
-        logger.error(f"❌ Error deleting user: {e}")
+        logger.error(f"Error deleting user: {e}")
         return False
